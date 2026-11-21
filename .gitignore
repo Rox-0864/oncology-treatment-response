@@ -1,0 +1,27 @@
+# --- Entornos virtuales ---
+.venv/
+venv/
+env/
+
+# --- Python ---
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# --- Datos crudos (NO versionar: contienen PII como EXPEDIENTE) ---
+# El dataset des-identificado (data/dataset.csv) SÍ se versiona.
+/data/raw/
+*.xlsx
+*.xls
+
+# --- Modelos y salidas (generados por main.py) ---
+/models/
+logs/
+results/
+*.log
+*.pkl
+
+# --- Sistema / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
