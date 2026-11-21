@@ -131,6 +131,69 @@ Todo se anonimiza en el origen con un identificador hasheado.
 
 ---
 
+## Recursos y costos
+
+La mayor parte del esfuerzo es **tiempo de personas** (en especie si es una
+colaboración institucional); los costos directos son acotados. Valores
+indicativos en USD.
+
+### Recursos humanos (principal costo, en especie)
+
+| Recurso | Dedicación estimada | Costo |
+|---------|---------------------|-------|
+| Investigador/a de datos | 8–10 h/semana × 6 meses | En especie (o honorarios si es contratado) |
+| Médico/a clínico/a | 2–3 h/semana (revisión de casos) | En especie |
+| Capturista / residente | 5–10 h/semana × 3 meses | En especie o beca |
+| Estadístico/a (opcional) | Consultoría puntual | $500–2,000 |
+
+### Infraestructura y software
+
+| Recurso | Descripción | Costo |
+|---------|-------------|-------|
+| Cómputo (GPU) | Entrenamiento de modelos; local o nube | $0–50/mes |
+| Software | Python, scikit-learn, XGBoost, SHAP, Streamlit | Gratuito (open source) |
+| Formulario de captura | REDCap (si el hospital lo tiene) o Google Forms | Gratuito |
+| Almacenamiento seguro | Servidor institucional o cifrado | $0–20/mes |
+
+### Ética y administración
+
+| Recurso | Costo estimado |
+|---------|----------------|
+| Aprobación comité de ética (IRB) | $0–500 (según institución) |
+| Gestión de datos / anonimización | En especie |
+
+### Publicación
+
+| Recurso | Costo estimado |
+|---------|----------------|
+| Publicación open access (APC) | $0–3,000 (según revista) |
+| Traducción del manuscrito (si aplica) | $300–800 |
+
+### Resumen de costos directos
+
+| Categoría | Rango estimado |
+|-----------|----------------|
+| Total costo directo (sin honorarios) | **$500–4,500** |
+| Costo directo mínimo (colaboración total) | **~$0** (todo en especie + software gratuito) |
+
+> La inversión real es **tiempo clínico** para la recolección, no dinero. Por eso
+> el diseño eficiente del formulario y el diccionario (ver PROTOCOLO.md) es lo
+> que más reduce el costo.
+
+---
+
+## Riesgos y mitigación
+
+| Riesgo | Probabilidad | Mitigación |
+|--------|--------------|------------|
+| Recolección lenta / pocos eventos | Alta | Definir cohorte amplia (3–5 años), criterios claros, apoyo de capturista |
+| Datos incompletos (KPS, fechas) | Media | Formulario cerrado con campos obligatorios y validación de rango |
+| Retraso en aprobación ética | Media | Iniciar el trámite desde el mes 1, paralelo al formulario |
+| Modelo con rendimiento insuficiente | Media | Reportar honestamente; el análisis descriptivo y de supervivencia sigue siendo publicable |
+| Sesgo de selección (cohorte retrospectiva) | Media | Criterios de inclusión estrictos y documentación de exclusiones |
+
+---
+
 ## Consideraciones éticas
 
 - Aprobación del **comité de ética** antes de recolectar.

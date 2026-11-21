@@ -310,10 +310,17 @@ Los errores del proyecto original y cómo se corrigieron están explicados en
 
 Este proyecto dejó claro que con los datos actuales (12–16 casos de progresión)
 no se puede construir un modelo clínicamente válido. Para una investigación
-formal y útil, elaboramos dos documentos:
+formal y útil, elaboramos dos documentos (en español e inglés, con versión PDF):
 
-- **[PROTOCOLO.md](PROTOCOLO.md)** — protocolo técnico de recolección: PICO,
-  endpoints, cálculo de muestra (EPV), diccionario de datos y metodología de
-  validación.
-- **[PROPUESTA_INVESTIGACION.md](PROPUESTA_INVESTIGACION.md)** — propuesta formal
-  para presentar al equipo médico y convencerlos de colaborar en la recolección.
+- **[PROTOCOLO.md](PROTOCOLO.md)** · [EN](PROTOCOLO_EN.md) — protocolo técnico de
+  recolección: PICO, endpoints, cálculo de muestra (EPV), diccionario de datos y
+  metodología de validación.
+- **[PROPUESTA_INVESTIGACION.md](PROPUESTA_INVESTIGACION.md)** · [EN](PROPUESTA_INVESTIGACION_EN.md) —
+  propuesta formal para presentar al equipo médico y convencerlos de colaborar.
+
+**Versiones PDF** (para compartir directamente):
+
+- [`pdf/PROTOCOLO.pdf`](pdf/PROTOCOLO.pdf) · [`pdf/PROTOCOLO_EN.pdf`](pdf/PROTOCOLO_EN.pdf)
+- [`pdf/PROPUESTA_INVESTIGACION.pdf`](pdf/PROPUESTA_INVESTIGACION.pdf) · [`pdf/PROPUESTA_INVESTIGACION_EN.pdf`](pdf/PROPUESTA_INVESTIGACION_EN.pdf)
+
+> Para regenerar los PDF: `python scripts/md_to_pdf.py <archivo.md> <salida.pdf>`.

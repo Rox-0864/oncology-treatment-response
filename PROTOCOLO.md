@@ -193,7 +193,23 @@ permitidos**. Nada de "MULTIPLES", "Unknown" sueltos o espacios en los nombres.
 
 ---
 
-## 9. Checklist de arranque
+## 9. Recursos necesarios
+
+| Recurso | Detalle | Costo |
+|---------|---------|-------|
+| Tiempo clínico | Revisión y captura de registros (principal costo) | En especie |
+| Cómputo | GPU local o nube para modelos | $0–50/mes |
+| Software | Python + sklearn + XGBoost + SHAP + Streamlit | Gratuito |
+| Formulario | REDCap / Google Forms | Gratuito |
+| Ética (IRB) | Aprobación institucional | $0–500 |
+| Publicación | APC si es open access | $0–3,000 |
+
+> El desglose completo de costos, riesgos y mitigación está en
+> **[PROPUESTA_INVESTIGACION.md](PROPUESTA_INVESTIGACION.md)**.
+
+---
+
+## 10. Checklist de arranque
 
 - [ ] Pregunta PICO y endpoint primario escritos y aprobados.
 - [ ] Cálculo de tamaño de muestra (EPV) documentado.
