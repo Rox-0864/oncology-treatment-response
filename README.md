@@ -155,6 +155,71 @@ Variables con asociación estadísticamente significativa con la respuesta
 
 No resultaron significativas: `SEXO` (p=0.27) y `CIRUGIA PREVIA` (p=0.10).
 
+### Metodología de validación (por qué importa)
+
+Para no autoengañarnos, comparamos **dos unidades de análisis** con **tres
+formas de validar**:
+
+**Dos unidades de análisis**
+
+- **Nivel tumor** (466 filas): cada fila es un tumor. Pregunta: *"¿este tumor
+  progresa?"* → 16 progresiones de 448 (3.4%).
+- **Nivel paciente** (95 filas): cada fila es un paciente, con sus tumores
+  agregados. Pregunta: *"¿este paciente progresa?"* (fracasa si **cualquier**
+  tumor progresa) → 12 de 83 (12.6%).
+
+**Tres formas de validar**
+
+1. **Split aleatorio (por fila)** ⚠️ — ignora que los tumores de un mismo
+   paciente están correlacionados. Produce fuga de datos.
+2. **GroupKFold (por paciente)** — un paciente queda en train *o* test, nunca
+   en ambos. Es la forma correcta para datos con múltiples registros por sujeto.
+3. **Validación anidada** — además, afina los hiperparámetros dentro de cada
+   fold (bucle interno), de modo que el ajuste no "gaste" los datos de
+   evaluación.
+
+**El diagrama de la validación anidada (dos bucles):**
+
+```
+VALIDACIÓN ANIDADA (dos bucles) — datos: 95 pacientes
+
+┌───────────────── BUCLE EXTERNO: GroupKFold (5 folds) ─────────────────┐
+│  Cada paciente queda en test UNA sola vez (nunca en train + test).    │
+│                                                                       │
+│   fold 1:  [ train  train  train  train  TEST ]                       │
+│   fold 2:  [ train  train  train  TEST  train ]                       │
+│   ...      (5 combinaciones, una por fold)                            │
+└───────────────────────────────┬───────────────────────────────────────┘
+                                │  por cada fold, su "train" entra a...
+                                ▼
+┌───────────────── BUCLE INTERNO: GroupKFold (3 folds) ─────────────────┐
+│  Dentro del train se AFINAN los hiperparámetros:                      │
+│   GridSearchCV prueba (n_estimators, max_depth, ...)                  │
+│   y elige la combinación con mejor AUC.                               │
+│                                                                       │
+│   ⚠ Los datos del TEST externo NO participan en esta elección.        │
+└───────────────────────────────┬───────────────────────────────────────┘
+                                │
+                                ▼
+   El mejor modelo se evalúa en el TEST externo (datos nunca vistos)
+   → AUC del fold. Se promedian los 5 AUC → métrica honesta.
+```
+
+```mermaid
+flowchart TD
+    A[Datos: 95 pacientes] --> B[Bucle externo: GroupKFold 5 folds]
+    B --> C{Por cada fold externo}
+    C --> D[train del fold]
+    C --> E[test del fold]
+    D --> F[Bucle interno: GroupKFold 3 folds]
+    F --> G[GridSearchCV: afina hiperparámetros]
+    G --> H[Mejor modelo + params]
+    H --> I[Evaluar en el test del fold]
+    E --> I
+    I --> J[AUC del fold]
+    J --> K[Promediar 5 AUC = métrica honesta]
+```
+
 ### Comparación de modelos (split aleatorio ⚠️)
 
 > **Advertencia:** esta tabla usa un split aleatorio por FILA, que **no respeta
@@ -197,6 +262,28 @@ resultado cambia:
 Agregar por paciente (a) reduce el desbalance (12/95 = 12.6% vs 16/448 = 3.4%) y
 (b) define un endpoint clínicamente más sensato. Aparece una **señal débil pero
 real** (AUC ~0.72–0.76) que a nivel tumor estaba totalmente oculta.
+
+### Resumen de todos los resultados
+
+| Validación | Unidad de análisis | AUC | Conclusión |
+|------------|--------------------|-----|------------|
+| Split aleatorio (⚠️ fuga) | tumor | 0.83 | falso optimismo |
+| GroupKFold | tumor | 0.48 | nivel azar |
+| GroupKFold | paciente | 0.72 | señal débil |
+| Anidada (con tuning) | paciente | 0.76 | señal débil (honesta) |
+
+### Hallazgos clave
+
+1. **La validación por fila fabricaba un AUC falso de 0.83** (fuga por paciente).
+2. **A nivel tumor el modelo es azar** (AUC 0.48): "¿este tumor progresa?" no se
+   puede responder con estas variables.
+3. **Agregando por paciente emerge una señal** (AUC 0.72–0.76): "¿este paciente
+   progresa?" sí tiene algo de señal. Cambiar la unidad de análisis cambió el
+   resultado de azar a informativo.
+4. **La validación anidada confirma la señal sin inflarla** (0.76 ≈ 0.72), es
+   decir, el tuning de hiperparámetros no estaba sobreajustando.
+5. **Todo sigue siendo ruidoso**: con 12 casos de progresión, la varianza entre
+   folds es enorme (std ~0.15). Hace falta más data para confirmar.
 
 ### Conclusión honesta
 
