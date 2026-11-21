@@ -135,6 +135,53 @@ se evalúa con AUC-ROC y las métricas de la clase minoritaria.
 
 ---
 
+## Resultados y limitaciones
+
+Estos resultados se obtuvieron ejecutando el pipeline sobre el dataset
+des-identificado (`data/dataset.csv`, 464 registros tras limpieza). Podés
+reproducirlos con `python main.py --stats` y `python scripts/compare_models.py`.
+
+### Hallazgos estadísticos
+
+Variables con asociación estadísticamente significativa con la respuesta
+(p < 0.05):
+
+| Variable | Prueba | p-valor | Interpretación |
+|----------|--------|---------|----------------|
+| TUMOR PRIMARIO | chi² | 0.0001 | asociación significativa |
+| TECNICA | chi² | 0.0025 | asociación significativa |
+| SRS | chi² | 0.0484 | asociación significativa |
+| DOSIS (Gy) | ANOVA | 0.0000 | dosis media distinta según respuesta |
+
+No resultaron significativas: `SEXO` (p=0.27) y `CIRUGIA PREVIA` (p=0.10).
+
+### Comparación de modelos
+
+| Modelo | AUC-ROC | Accuracy | Recall progresión (umbral 0.5) | Precision progresión |
+|--------|---------|----------|-------------------------------|----------------------|
+| XGBoost | **0.839** | 0.957 | 0.00 | 0.00 |
+| Random Forest | 0.829 | 0.943 | 0.00 | 0.00 |
+| Gradient Boosting | 0.801 | 0.943 | 0.00 | 0.00 |
+| Logistic Regression | 0.759 | 0.914 | 0.20 | 0.11 |
+| Decision Tree | 0.567 | 0.907 | 0.20 | 0.10 |
+
+### Conclusión honesta
+
+- El **ranking** es levemente informativo (AUC ~0.84), pero **no hay un punto de
+  operación útil**: al umbral estándar (0.5) el modelo no detecta la progresión
+  (recall 0); al forzar sensibilidad con un umbral más bajo, la precisión
+  colapsa (casi todo se etiqueta como "progresión").
+- La causa raíz es la **cantidad de datos**: solo **16 casos de progresión** no
+  alcanzan para que ningún modelo aprenda a distinguirlos. Es un límite de los
+  datos, no del código.
+- Para un predictor clínicamente útil haría falta recopilar muchos más casos de
+  progresión (idealmente cientos).
+
+> La métrica honesta acá es el **AUC-ROC** junto al **reporte de clasificación**,
+> no la exactitud (que es ~95% y engañosa por el desbalance).
+
+---
+
 ## Guía de estudio
 
 Los errores del proyecto original y cómo se corrigieron están explicados en
