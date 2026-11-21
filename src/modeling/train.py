@@ -59,6 +59,7 @@ def build_pipeline(
     numeric_cols,
     use_smote: bool = True,
     random_state: int = 42,
+    smote_k_neighbors: int = 5,
 ):
     """Construye el pipeline completo de preprocesamiento + modelo."""
     if model_name not in MODEL_FACTORIES:
@@ -93,7 +94,7 @@ def build_pipeline(
         return ImbPipeline(
             [
                 ("prep", preprocessor),
-                ("smote", SMOTE(random_state=random_state)),
+                ("smote", SMOTE(random_state=random_state, k_neighbors=smote_k_neighbors)),
                 ("model", MODEL_FACTORIES[model_name]()),
             ]
         )

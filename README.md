@@ -155,16 +155,6 @@ Variables con asociación estadísticamente significativa con la respuesta
 
 No resultaron significativas: `SEXO` (p=0.27) y `CIRUGIA PREVIA` (p=0.10).
 
-### Comparación de modelos
-
-| Modelo | AUC-ROC | Accuracy | Recall progresión (umbral 0.5) | Precision progresión |
-|--------|---------|----------|-------------------------------|----------------------|
-| XGBoost | **0.839** | 0.957 | 0.00 | 0.00 |
-| Random Forest | 0.829 | 0.943 | 0.00 | 0.00 |
-| Gradient Boosting | 0.801 | 0.943 | 0.00 | 0.00 |
-| Logistic Regression | 0.759 | 0.914 | 0.20 | 0.11 |
-| Decision Tree | 0.567 | 0.907 | 0.20 | 0.10 |
-
 ### Comparación de modelos (split aleatorio ⚠️)
 
 > **Advertencia:** esta tabla usa un split aleatorio por FILA, que **no respeta
@@ -193,17 +183,30 @@ aparezca a la vez en train y test — el rendimiento **colapsa a nivel azar**:
 El AUC de 0.83 del split aleatorio era **fuga de datos**, no capacidad real del
 modelo. Esto se reproduce con `python scripts/evaluate_grouped.py`.
 
+### Agregación por paciente (la unidad correcta)
+
+Si en lugar de 466 tumores usamos **una fila por paciente** (95 pacientes), con la
+respuesta definida como *"el paciente progresa si CUALQUIER tumor progresa"*, el
+resultado cambia:
+
+| Método | AUC medio | Recall progresión |
+|--------|-----------|-------------------|
+| GroupKFold por paciente | 0.72 | 0.34 |
+| Validación anidada (con tuning) | 0.76 | — |
+
+Agregar por paciente (a) reduce el desbalance (12/95 = 12.6% vs 16/448 = 3.4%) y
+(b) define un endpoint clínicamente más sensato. Aparece una **señal débil pero
+real** (AUC ~0.72–0.76) que a nivel tumor estaba totalmente oculta.
+
 ### Conclusión honesta
 
-- El AUC real del modelo es **~0.5 (nivel azar)**: no predice la progresión
-  mejor que lanzar una moneda, una vez corregida la fuga.
-- La exactitud (~95%) es engañosa por dos motivos: el **desbalance** (16 vs 448)
-  y la **fuga por paciente**.
-- La causa raíz es doble: (1) **solo 16 casos de progresión** no alcanzan, y (2)
-  la **estructura jerárquica** (tumores anidados en pacientes) exige validación
-  agrupada, no por fila.
-- Para un predictor clínicamente útil haría falta recopilar muchos más casos de
-  progresión (idealmente cientos) y validar con cohortes separadas.
+- A nivel **tumor**, el modelo es **azar** (AUC ~0.5) una vez corregida la fuga.
+- A nivel **paciente** (agregando), hay una **señal débil** (AUC ~0.72–0.76,
+  recall de progresión ~0.34), pero con **12 casos de progresión** sigue siendo
+  muy ruidosa (std ~0.15) y sin validez clínica.
+- La exactitud (~95%) es engañosa por el **desbalance** y la **fuga por paciente**.
+- Para un predictor clínicamente útil haría falta recopilar **muchos más casos de
+  progresión** (idealmente cientos) y validar con cohortes separadas.
 
 > **Lección clave:** en datos clínicos con múltiples registros por paciente,
 > SIEMPRE validar con `GroupKFold` por paciente. Ignorarlo produce resultados
