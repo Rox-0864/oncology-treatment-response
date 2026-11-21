@@ -305,3 +305,15 @@ real** (AUC ~0.72–0.76) que a nivel tumor estaba totalmente oculta.
 
 Los errores del proyecto original y cómo se corrigieron están explicados en
 **[GUIA_DE_ESTUDIO.md](GUIA_DE_ESTUDIO.md)**.
+
+## Próximos pasos: nueva investigación
+
+Este proyecto dejó claro que con los datos actuales (12–16 casos de progresión)
+no se puede construir un modelo clínicamente válido. Para una investigación
+formal y útil, elaboramos dos documentos:
+
+- **[PROTOCOLO.md](PROTOCOLO.md)** — protocolo técnico de recolección: PICO,
+  endpoints, cálculo de muestra (EPV), diccionario de datos y metodología de
+  validación.
+- **[PROPUESTA_INVESTIGACION.md](PROPUESTA_INVESTIGACION.md)** — propuesta formal
+  para presentar al equipo médico y convencerlos de colaborar en la recolección.
