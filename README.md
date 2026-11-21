@@ -165,20 +165,49 @@ No resultaron significativas: `SEXO` (p=0.27) y `CIRUGIA PREVIA` (p=0.10).
 | Logistic Regression | 0.759 | 0.914 | 0.20 | 0.11 |
 | Decision Tree | 0.567 | 0.907 | 0.20 | 0.10 |
 
+### Comparación de modelos (split aleatorio ⚠️)
+
+> **Advertencia:** esta tabla usa un split aleatorio por FILA, que **no respeta
+> el agrupamiento por paciente** (466 tumores de 97 pacientes). Como un mismo
+> paciente puede quedar con tumores en train *y* test, el AUC está **inflado por
+> fuga de datos**. Ver la evaluación correcta más abajo.
+
+| Modelo | AUC-ROC | Accuracy | Recall progresión (umbral 0.5) | Precision progresión |
+|--------|---------|----------|-------------------------------|----------------------|
+| XGBoost | 0.839 | 0.957 | 0.00 | 0.00 |
+| Random Forest | 0.829 | 0.943 | 0.00 | 0.00 |
+| Gradient Boosting | 0.801 | 0.943 | 0.00 | 0.00 |
+| Logistic Regression | 0.759 | 0.914 | 0.20 | 0.11 |
+| Decision Tree | 0.567 | 0.907 | 0.20 | 0.10 |
+
+### Evaluación honesta (GroupKFold por paciente)
+
+Al separar por **PACIENTE** (`GroupKFold`, 5 folds) — de modo que un paciente no
+aparezca a la vez en train y test — el rendimiento **colapsa a nivel azar**:
+
+| Modelo | AUC medio (GroupKFold) | Recall progresión |
+|--------|------------------------|-------------------|
+| Random Forest | **0.48** | 0.00 |
+| XGBoost | 0.60 | 0.00 |
+
+El AUC de 0.83 del split aleatorio era **fuga de datos**, no capacidad real del
+modelo. Esto se reproduce con `python scripts/evaluate_grouped.py`.
+
 ### Conclusión honesta
 
-- El **ranking** es levemente informativo (AUC ~0.84), pero **no hay un punto de
-  operación útil**: al umbral estándar (0.5) el modelo no detecta la progresión
-  (recall 0); al forzar sensibilidad con un umbral más bajo, la precisión
-  colapsa (casi todo se etiqueta como "progresión").
-- La causa raíz es la **cantidad de datos**: solo **16 casos de progresión** no
-  alcanzan para que ningún modelo aprenda a distinguirlos. Es un límite de los
-  datos, no del código.
+- El AUC real del modelo es **~0.5 (nivel azar)**: no predice la progresión
+  mejor que lanzar una moneda, una vez corregida la fuga.
+- La exactitud (~95%) es engañosa por dos motivos: el **desbalance** (16 vs 448)
+  y la **fuga por paciente**.
+- La causa raíz es doble: (1) **solo 16 casos de progresión** no alcanzan, y (2)
+  la **estructura jerárquica** (tumores anidados en pacientes) exige validación
+  agrupada, no por fila.
 - Para un predictor clínicamente útil haría falta recopilar muchos más casos de
-  progresión (idealmente cientos).
+  progresión (idealmente cientos) y validar con cohortes separadas.
 
-> La métrica honesta acá es el **AUC-ROC** junto al **reporte de clasificación**,
-> no la exactitud (que es ~95% y engañosa por el desbalance).
+> **Lección clave:** en datos clínicos con múltiples registros por paciente,
+> SIEMPRE validar con `GroupKFold` por paciente. Ignorarlo produce resultados
+> falsamente optimistas.
 
 ---
 

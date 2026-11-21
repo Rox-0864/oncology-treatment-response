@@ -270,6 +270,40 @@ visto antes.
 
 ---
 
+## 13. Fuga de datos — validar sin agrupar por paciente (el hallazgo más importante)
+
+### El problema
+El pipeline original (y el primer split que hicimos) dividía los datos por
+**fila**, ignorando que los 466 tumores pertenecen a **97 pacientes**. Un mismo
+paciente podía quedar con tumores en el conjunto de entrenamiento *y* en el de
+prueba.
+
+### Por qué es un error
+Cuando un paciente aparece en train y test, el modelo "ya lo vio" durante el
+entrenamiento. Eso **infla las métricas**: el AUC parecía 0.83, pero era fuga de
+información, no capacidad real.
+
+### La prueba
+Al usar `GroupKFold` (separando por `PACIENTE`), el AUC **colapsa a ~0.48
+(nivel azar)** y el recall de progresión es 0 en todos los folds:
+
+| Split | AUC | Conclusión |
+|-------|-----|-----------|
+| Aleatorio (por fila) | 0.83 | falso optimismo (fuga) |
+| GroupKFold (por paciente) | 0.48 | nivel azar |
+
+### La corrección
+Se agregó `src/modeling/group_eval.py` y `scripts/evaluate_grouped.py`, que
+evalúan con `GroupKFold` por paciente (y opcionalmente calculan importancia
+SHAP). Es la forma correcta de validar datos clínicos con múltiples registros
+por paciente.
+
+> **Regla de oro:** si los datos tienen una columna que identifica al sujeto
+> (paciente, cliente, usuario), la validación SIEMPRE debe agruparse por esa
+> columna.
+
+---
+
 ## Resumen rápido
 
 | # | Error | Corrección |
@@ -286,3 +320,4 @@ visto antes.
 | 10 | Desbalance 450 vs 16 | SMOTE + AUC-ROC |
 | 11 | `requirements.txt` incompleto | deps reales y pineadas |
 | 12 | Strings en columnas numéricas (`MULTIPLES`) | `coerce_numeric()` |
+| 13 | Fuga de datos por no agrupar por paciente | `GroupKFold` por `PACIENTE` |
