@@ -69,7 +69,7 @@ def main() -> int:
 
     # 1. Cargar y limpiar
     df = load_data(cfg.data_path, cfg.encoding)
-    df = clean(df, cfg.response_col)
+    df = clean(df, cfg.response_col, cfg.numeric_cols)
     logger.info("Dataset limpio: %d filas x %d columnas", df.shape[0], df.shape[1])
 
     # 2. Análisis estadístico (opcional)

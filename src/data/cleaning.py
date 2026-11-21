@@ -96,11 +96,25 @@ def drop_invalid_srs(
     return df
 
 
-def clean(df: pd.DataFrame, response_col: str) -> pd.DataFrame:
+def coerce_numeric(df: pd.DataFrame, cols) -> pd.DataFrame:
+    """Convierte columnas numéricas a float, dejando NaN donde no se pueda.
+
+    Corrige valores como 'MULTIPLES' en ``No. METS`` o 'Unknown' en
+    ``TAMAÑO (mm)``, que rompían el imputer numérico.
+    """
+    df = df.copy()
+    for col in cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
+
+
+def clean(df: pd.DataFrame, response_col: str, numeric_cols: tuple = ()) -> pd.DataFrame:
     """Aplica la secuencia completa de limpieza."""
     df = normalize_column_names(df)
     df = map_response_binary(df, response_col)
     df = clean_tamano(df)
     df = clean_localizacion(df)
     df = drop_invalid_srs(df)
+    df = coerce_numeric(df, numeric_cols)
     return df

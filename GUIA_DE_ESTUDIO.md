@@ -247,6 +247,29 @@ versionadas.
 
 ---
 
+## 12. Valores no numéricos en columnas numéricas (hallado al probar)
+
+### El problema
+Al ejecutar el pipeline por primera vez, el imputer numérico crasheaba con
+`could not convert string to float: 'MULTIPLES'`. Inspeccionando los datos, la
+columna `No. METS` contenía el string `MULTIPLES`, y `TAMAÑO (mm)` contenía
+`2024-06-11 00:00:00` y `Unknown`.
+
+### Por qué es un error
+Las columnas numéricas deben ser numéricas. Un solo valor string rompe el
+entrenamiento completo (el imputer no puede calcular la mediana). Es un problema
+de calidad del dato de origen (un humano escribió "MULTIPLES" en lugar de un
+número).
+
+### La corrección
+Se agregó `coerce_numeric()` en `src/data/cleaning.py`: convierte cada columna
+numérica con `pd.to_numeric(errors="coerce")`, de modo que cualquier valor no
+numérico se vuelve `NaN` y luego lo imputa el pipeline. El resultado se detectó
+**porque se probó el pipeline de punta a punta**, no porque nadie lo hubiera
+visto antes.
+
+---
+
 ## Resumen rápido
 
 | # | Error | Corrección |
@@ -262,3 +285,4 @@ versionadas.
 | 9 | 5 notebooks duplicados | un solo pipeline |
 | 10 | Desbalance 450 vs 16 | SMOTE + AUC-ROC |
 | 11 | `requirements.txt` incompleto | deps reales y pineadas |
+| 12 | Strings en columnas numéricas (`MULTIPLES`) | `coerce_numeric()` |
