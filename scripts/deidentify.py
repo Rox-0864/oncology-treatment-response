@@ -11,6 +11,11 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
+from pathlib import Path
+
+# Permite ejecutar el script desde cualquier directorio.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.data.deidentify import deidentify
 from src.data.loader import load_data
